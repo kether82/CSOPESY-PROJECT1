@@ -40,7 +40,7 @@ int main() {
     printf("Enter File Name: ");
     // fgets(filename, sizeof(filename), stdin);
     // filename[strcspn(filename, "\n")] = 0;
-    strcpy(filename,"test3.txt");
+    strcpy(filename,"test4.txt");
     puts("\n");
     file = fopen(filename, "r");
 
@@ -105,8 +105,8 @@ int main() {
     }else{
         printf("%s not found", filename);
     }
-    printf("%d %d %d", params[IND_ALGO], params[IND_NUMPROCESS], params[IND_TIMESLICE]);
-    // for(i = 0; i < 3; i++) printf("%d %d %d \n", processes[i].pID, processes[i].arrivalTime, processes[i].burstTime);
+    printf("%d %d %d\n", params[IND_ALGO], params[IND_NUMPROCESS], params[IND_TIMESLICE]);
+    for(i = 0; i < 3; i++) printf("%d %d %d \n", processes[i].pID, processes[i].arrivalTime, processes[i].burstTime);
 
     // printf("%d", processes[2].burstTime);
 
@@ -117,6 +117,8 @@ int main() {
         // Shortest Job First
     } else if (params[IND_ALGO] == 2){
         // Shortest Remaining Time First
+        puts("Shortest Remaining Time First: \n");
+        srtf(processes, params[IND_NUMPROCESS]);
     } else if (params[IND_ALGO] == 3){
         // Round Robin
         puts("Round Robin: \n");
@@ -125,6 +127,73 @@ int main() {
     return 0;
 }
 
+srtf(struct process processes[], int n){
+    // search for shortest remaining time
+    // execute with 1 step
+    // loop till end
+    int i = 0;
+    int t = 0;
+    int shortest = 0;
+    int min = 9999999;
+    int flag = 0;
+    int remBurst[SIZE_PROCESSES];
+    int endTime = 0;
+    int countDone = 0;
+    int prev = 0;
+    double wtAvg = 0;
+    int wtAccu = 0;
+    for(i = 0; i < n; i++){
+        remBurst[i] = processes[i].burstTime;
+    }
+    while(countDone != n){
+        // printf("%d\n", countDone);
+        for(i = 0; i < n; i++){
+
+            // find the shortest active process
+            if(processes[i].arrivalTime <= t && remBurst[i] < min && remBurst[i] > 0){
+                min = remBurst[i];
+                shortest = i;
+                flag = 1;
+                processes[i].startTime[processes[i].cycle] = t;
+                if(prev != i){
+                    processes[prev].endTime[processes[prev].cycle] = t;
+                    if(remBurst[prev] > 0){
+                        processes[prev].cycle++;
+                    }
+                }
+            }
+
+        }
+        // if we cant found one, increment the timer
+        if(!flag){
+            t++;
+        } else {
+            
+            remBurst[shortest]--;
+            min--;
+            prev = shortest;
+            // process is done
+            if(remBurst[shortest] == 0){
+                min = 9999999;
+                flag = 0;
+                countDone++;
+                endTime = t + 1;
+                processes[shortest].waitTime = (endTime - processes[shortest].burstTime - processes[shortest].arrivalTime);
+                if(countDone == n){
+                    processes[shortest].endTime[processes[shortest].cycle] = endTime;
+                }
+            }
+
+            t++;
+        }
+        // outputFormat(processes, n);
+    }
+    for(i = 0; i < n; i++) wtAccu += processes[i].waitTime;
+    wtAvg = wtAccu * 1.0 / n ;
+
+    outputFormat(processes, n);
+    printf("Average Waiting Time: <%.2f>", wtAvg);
+}
 roundRobin(struct process processes[], int timeSlice, int n){
     // Apply time slice to all tasks in order of arrival time
     // check if arrived
