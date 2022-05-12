@@ -40,7 +40,7 @@ int main() {
     printf("Enter File Name: ");
     // fgets(filename, sizeof(filename), stdin);
     // filename[strcspn(filename, "\n")] = 0;
-    strcpy(filename,"test.txt");
+    strcpy(filename,"test3.txt");
     puts("\n");
     file = fopen(filename, "r");
 
@@ -137,6 +137,7 @@ roundRobin(struct process processes[], int timeSlice, int n){
     int t = 0;
     int i = 0;
     int j = 0;
+    int minTime = 999999;
     for (i = 0; i < n; i++){
         remBurst[i] = processes[i].burstTime;
     }
@@ -146,6 +147,7 @@ roundRobin(struct process processes[], int timeSlice, int n){
 
         for(i = 0; i < n; i++){
 
+            
             if(t >= processes[i].arrivalTime){
 
                 if(remBurst[i] > 0){
@@ -166,16 +168,20 @@ roundRobin(struct process processes[], int timeSlice, int n){
                         int accu = 0;
                         
                         for(j = 1; j <= processes[i].cycle; j++){
-                            accu = processes[i].startTime[j] - processes[i].endTime[j-1];
+                            accu += processes[i].startTime[j] - processes[i].endTime[j-1];
                         }
                         processes[i].waitTime = accu + (processes[i].startTime[0] - processes[i].arrivalTime);
                         
                     }
                 }
-
-            } else {
-                t++;
             }
+            
+            // get minimum time for anything to get going
+            if(minTime > processes[i].arrivalTime) minTime = processes[i].arrivalTime;
+        }
+        if(minTime > t){
+            t = minTime;
+            flag = 0;
         }
         if(flag) break;
     }
@@ -191,7 +197,7 @@ outputFormat(struct process processes[], int n){
     int i = 0;
     int j = 0;
     for(i = 0; i < n; i++){
-        printf("P[%d]" , processes[i].pID);
+        printf("P[%d] " , processes[i].pID);
         for(j = 0; j <= processes[i].cycle; j++){
             printf("Start time: <%d> End Time: <%d> | ", processes[i].startTime[j], processes[i].endTime[j]);
         }
