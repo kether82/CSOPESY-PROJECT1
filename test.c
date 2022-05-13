@@ -113,8 +113,12 @@ int main() {
     // algorithm portion
     if(params[IND_ALGO] == 0){
         // First come first serve
+        puts("First Come First Serve: \n");
+        fcfs(processes, params[IND_NUMPROCESS]);
     } else if (params[IND_ALGO] == 1){
         // Shortest Job First
+        puts("Shortest Job First: \n");
+        sjf(processes, params[IND_NUMPROCESS]);
     } else if (params[IND_ALGO] == 2){
         // Shortest Remaining Time First
         puts("Shortest Remaining Time First: \n");
@@ -125,6 +129,78 @@ int main() {
         roundRobin(processes, params[IND_TIMESLICE], params[IND_NUMPROCESS]);
     }
     return 0;
+}
+
+// bubble sort algo was taken from: https://www.edureka.co/blog/sorting-algorithms-in-c/#BubbleSort
+void swap(int *a, int *b) 
+{ 
+int temp = *a; 
+*a = *b; 
+*b = temp; 
+}  
+
+// bubble sort function
+void bubbleSort(int array[], int n, int array2[]) 
+{ 
+int i, j; 
+for (i = 0; i < n-1; i++)       
+for (j = 0; j < n-i-1; j++) if (array[j] > array[j+1])
+{
+	swap(&array[j], &array[j+1]); 
+	swap(&array2[j], &array2[j+1]);
+} 
+
+}
+
+fcfs(struct process processes[], int n)
+{
+	int timeWaiting = 0;
+	int totalWT= 0;
+	double avgTime = 0;
+	int arrTime[n];
+	int sortedIndex[n];
+	int i = 0;
+	
+	for(i = 0; i < n; i++)
+	{
+		//Get the arrival times of each process and set the values for the sortedIndex array
+		arrTime[i] = processes[i].arrivalTime;
+		sortedIndex[i] = i;
+	}
+	
+	//sort the arrival times along with the indexes
+	bubbleSort(arrTime, n, sortedIndex);
+	
+	for(i = 0; i < n; i++)
+	{
+		//setting the values for the first case
+		if(i == 0)
+			{
+				processes[sortedIndex[i]].waitTime = 0;
+				processes[sortedIndex[i]].startTime[0] = 0;
+				processes[sortedIndex[i]].endTime[0] = processes[sortedIndex[i]].burstTime;
+				processes[sortedIndex[i]].cycle = 0;
+			}
+		//setting values for the rest of the cases
+		else
+		{
+			timeWaiting += processes[sortedIndex[i-1]].burstTime;
+			processes[sortedIndex[i]].waitTime = timeWaiting - processes[sortedIndex[i]].arrivalTime;
+			processes[sortedIndex[i]].startTime[0] = timeWaiting;
+			processes[sortedIndex[i]].endTime[0] = timeWaiting + processes[sortedIndex[i]].burstTime;
+			processes[sortedIndex[i]].cycle = 0;
+			
+		}
+	}
+	
+	outputFormat(processes, n);
+	
+	for(i = 0; i < n; i++)
+		totalWT += processes[i].waitTime;
+	avgTime = totalWT * 1.0 / n ;
+	
+	printf("Average Waiting Time: <%.2f>", avgTime);
+	
 }
 
 srtf(struct process processes[], int n){
