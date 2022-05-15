@@ -241,12 +241,12 @@ sjf(struct process processes[], int n)
 	bubbleSort2(burstTime, n, sortedIndex, arrTime);
 	//sort the arrival times along with the indexes
 	bubbleSort2(arrTime, n, sortedIndex, burstTime);
-
+/*
 	for(i = 0; i < n; i++)
 	{
 		printf("index: %d ||Burst %d||Arrival %d\n", sortedIndex[i], burstTime[i], arrTime[i]);
 	}
-	
+*/	
     for(i = 0; i < n; i++)
     {
         //setting the values for the first case
