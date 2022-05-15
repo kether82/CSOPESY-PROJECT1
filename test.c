@@ -217,7 +217,7 @@ for (j = 0; j < n-i-1; j++) if (array[j] > array[j+1])
 }
 
 sjf(struct process processes[], int n)
-{
+{	
 	int timeWaiting = 0;
 	int totalWT= 0;
 	double avgTime = 0;
@@ -225,9 +225,15 @@ sjf(struct process processes[], int n)
 	int arrTime[n];
 	int sortedIndex[n];
 	int burstTime[n];
-	
+	int smallest = 999999;
+	int indexSmallest;
+	int prevIndex;
 	int i = 0;
 	int j = 0;
+	
+	int counter = 0;
+	int timeCheck = 0;
+	int flag[n];
 	
 	for(i = 0; i < n; i++)
 	{
@@ -235,41 +241,149 @@ sjf(struct process processes[], int n)
 		arrTime[i] = processes[i].arrivalTime;
 		sortedIndex[i] = i;
 		burstTime[i] = processes[i].burstTime;
-		
+		flag[i] = 0;
 	}
 	//sort first by burst times
 	bubbleSort2(burstTime, n, sortedIndex, arrTime);
 	//sort the arrival times along with the indexes
 	bubbleSort2(arrTime, n, sortedIndex, burstTime);
-/*
+
 	for(i = 0; i < n; i++)
 	{
 		printf("index: %d ||Burst %d||Arrival %d\n", sortedIndex[i], burstTime[i], arrTime[i]);
 	}
-*/	
-    for(i = 0; i < n; i++)
-    {
+	
+	for(i = 0; i < n; i++)
+ 	   {
         //setting the values for the first case
-        if(i == 0)
-            {
+      	  if(i == 0)
+       	    {
                 processes[sortedIndex[i]].waitTime = 0;
                 processes[sortedIndex[i]].startTime[0] = 0;
                 processes[sortedIndex[i]].endTime[0] = processes[sortedIndex[i]].burstTime;
                 processes[sortedIndex[i]].cycle = 0;
+                flag[sortedIndex[i]] = 1;
+                prevIndex = sortedIndex[i];
             }
         //setting values for the rest of the cases
-        else
-        {
-            //range = processes[sortedIndex[i-1]].burstTime;
-            timeWaiting += processes[sortedIndex[i-1]].burstTime;
-            processes[sortedIndex[i]].waitTime = timeWaiting - processes[sortedIndex[i]].arrivalTime;
-            processes[sortedIndex[i]].startTime[0] = timeWaiting;
-            processes[sortedIndex[i]].endTime[0] = timeWaiting + processes[sortedIndex[i]].burstTime;
-            processes[sortedIndex[i]].cycle = 0;
-            
-        }
-    }
+      	  else
+     	   {
+            for(j = 0; j < n; j++)
+            {
+            	//we check if the arrival time of the current process is smaller than the previous and check the flag(if it has already been used)
+            	if((processes[sortedIndex[j]].arrivalTime <=  (processes[sortedIndex[i-1]].burstTime + processes[sortedIndex[i-1]].arrivalTime)) 
+				&& (flag[sortedIndex[j]] != 1))
+				{
+					//get the smallest burst time and the index
+					if(processes[sortedIndex[j]].burstTime < smallest)
+					{
+						smallest = processes[sortedIndex[j]].burstTime;
+						indexSmallest = j;
+					}
+				}
+			}
+			//once the smallest burst time has been found, we use the index to get the process and calculate from there
+            timeWaiting += processes[prevIndex].burstTime;
+            processes[sortedIndex[indexSmallest]].waitTime = timeWaiting - processes[sortedIndex[indexSmallest]].arrivalTime;
+            processes[sortedIndex[indexSmallest]].startTime[0] = timeWaiting;
+            processes[sortedIndex[indexSmallest]].endTime[0] = timeWaiting + processes[sortedIndex[indexSmallest]].burstTime;
+            processes[sortedIndex[indexSmallest]].cycle = 0;
+            flag[sortedIndex[indexSmallest]] = 1;
+            smallest = 999999;
+            prevIndex = sortedIndex[indexSmallest];
+       	 }
+       	 
+  	  }
+  	
+	outputFormat(processes, n);
 	
+	for(i = 0; i < n; i++)
+		totalWT += processes[i].waitTime;
+	avgTime = totalWT * 1.0 / n ;
+	
+	printf("Average Waiting Time: <%.2f>", avgTime);
+	
+}
+
+sjf(struct process processes[], int n)
+{	
+	int timeWaiting = 0;
+	int totalWT= 0;
+	double avgTime = 0;
+	
+	int arrTime[n];
+	int sortedIndex[n];
+	int burstTime[n];
+	int smallest = 999999;
+	int indexSmallest;
+	int prevIndex;
+	int i = 0;
+	int j = 0;
+	
+	int counter = 0;
+	int timeCheck = 0;
+	int flag[n];
+	
+	for(i = 0; i < n; i++)
+	{
+		//Get the arrival times of each process and set the values for the sortedIndex array
+		arrTime[i] = processes[i].arrivalTime;
+		sortedIndex[i] = i;
+		burstTime[i] = processes[i].burstTime;
+		flag[i] = 0;
+	}
+	//sort first by burst times
+	bubbleSort2(burstTime, n, sortedIndex, arrTime);
+	//sort the arrival times along with the indexes
+	bubbleSort2(arrTime, n, sortedIndex, burstTime);
+
+	for(i = 0; i < n; i++)
+	{
+		printf("index: %d ||Burst %d||Arrival %d\n", sortedIndex[i], burstTime[i], arrTime[i]);
+	}
+	
+	for(i = 0; i < n; i++)
+ 	   {
+        //setting the values for the first case
+      	  if(i == 0)
+       	    {
+                processes[sortedIndex[i]].waitTime = 0;
+                processes[sortedIndex[i]].startTime[0] = 0;
+                processes[sortedIndex[i]].endTime[0] = processes[sortedIndex[i]].burstTime;
+                processes[sortedIndex[i]].cycle = 0;
+                flag[sortedIndex[i]] = 1;
+                prevIndex = sortedIndex[i];
+            }
+        //setting values for the rest of the cases
+      	  else
+     	   {
+            for(j = 0; j < n; j++)
+            {
+            	//we check if the arrival time of the current process is smaller than the previous and check the flag(if it has already been used)
+            	if((processes[sortedIndex[j]].arrivalTime <=  (processes[sortedIndex[i-1]].burstTime + processes[sortedIndex[i-1]].arrivalTime)) 
+				&& (flag[sortedIndex[j]] != 1))
+				{
+					//get the smallest burst time and the index
+					if(processes[sortedIndex[j]].burstTime < smallest)
+					{
+						smallest = processes[sortedIndex[j]].burstTime;
+						indexSmallest = j;
+					}
+				}
+			}
+			//once the smallest burst time has been found, we use the index to get the process and calculate from there
+            timeWaiting += processes[prevIndex].burstTime;
+            processes[sortedIndex[indexSmallest]].waitTime = timeWaiting - processes[sortedIndex[indexSmallest]].arrivalTime;
+            processes[sortedIndex[indexSmallest]].startTime[0] = timeWaiting;
+            processes[sortedIndex[indexSmallest]].endTime[0] = timeWaiting + processes[sortedIndex[indexSmallest]].burstTime;
+            processes[sortedIndex[indexSmallest]].cycle = 0;
+            flag[sortedIndex[indexSmallest]] = 1;
+            smallest = 999999;
+            prevIndex = sortedIndex[indexSmallest];
+       	 }
+       	 
+  	  }
+  	
 	outputFormat(processes, n);
 	
 	for(i = 0; i < n; i++)
