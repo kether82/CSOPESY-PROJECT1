@@ -203,6 +203,83 @@ fcfs(struct process processes[], int n)
 	
 }
 
+void bubbleSort2(int array[], int n, int array2[], int array3[]) 
+{ 
+int i, j; 
+for (i = 0; i < n-1; i++)       
+for (j = 0; j < n-i-1; j++) if (array[j] > array[j+1])
+{
+	swap(&array[j], &array[j+1]); 
+	swap(&array2[j], &array2[j+1]);
+	swap(&array3[j], &array3[j+1]);
+} 
+
+}
+
+sjf(struct process processes[], int n)
+{
+	int timeWaiting = 0;
+	int totalWT= 0;
+	double avgTime = 0;
+	
+	int arrTime[n];
+	int sortedIndex[n];
+	int burstTime[n];
+	
+	int i = 0;
+	int j = 0;
+	
+	for(i = 0; i < n; i++)
+	{
+		//Get the arrival times of each process and set the values for the sortedIndex array
+		arrTime[i] = processes[i].arrivalTime;
+		sortedIndex[i] = i;
+		burstTime[i] = processes[i].burstTime;
+		
+	}
+	//sort first by burst times
+	bubbleSort2(burstTime, n, sortedIndex, arrTime);
+	//sort the arrival times along with the indexes
+	bubbleSort2(arrTime, n, sortedIndex, burstTime);
+
+	for(i = 0; i < n; i++)
+	{
+		printf("index: %d ||Burst %d||Arrival %d\n", sortedIndex[i], burstTime[i], arrTime[i]);
+	}
+	
+    for(i = 0; i < n; i++)
+    {
+        //setting the values for the first case
+        if(i == 0)
+            {
+                processes[sortedIndex[i]].waitTime = 0;
+                processes[sortedIndex[i]].startTime[0] = 0;
+                processes[sortedIndex[i]].endTime[0] = processes[sortedIndex[i]].burstTime;
+                processes[sortedIndex[i]].cycle = 0;
+            }
+        //setting values for the rest of the cases
+        else
+        {
+            //range = processes[sortedIndex[i-1]].burstTime;
+            timeWaiting += processes[sortedIndex[i-1]].burstTime;
+            processes[sortedIndex[i]].waitTime = timeWaiting - processes[sortedIndex[i]].arrivalTime;
+            processes[sortedIndex[i]].startTime[0] = timeWaiting;
+            processes[sortedIndex[i]].endTime[0] = timeWaiting + processes[sortedIndex[i]].burstTime;
+            processes[sortedIndex[i]].cycle = 0;
+            
+        }
+    }
+	
+	outputFormat(processes, n);
+	
+	for(i = 0; i < n; i++)
+		totalWT += processes[i].waitTime;
+	avgTime = totalWT * 1.0 / n ;
+	
+	printf("Average Waiting Time: <%.2f>", avgTime);
+	
+}
+
 srtf(struct process processes[], int n){
     // search for shortest remaining time
     // execute with 1 step
