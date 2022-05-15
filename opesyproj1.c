@@ -38,10 +38,10 @@ int main() {
     struct process processes[SIZE_PROCESSES];
     // Get file name
     printf("Enter File Name: ");
-    // fgets(filename, sizeof(filename), stdin);
-    // filename[strcspn(filename, "\n")] = 0;
-    strcpy(filename,"test4.txt");
-    puts("\n");
+    fgets(filename, sizeof(filename), stdin);
+    filename[strcspn(filename, "\n")] = 0;
+    // strcpy(filename,"test4.txt");
+    // puts("\n");
     file = fopen(filename, "r");
 
     if (file){
@@ -105,33 +105,32 @@ int main() {
     }else{
         printf("%s not found", filename);
     }
-    printf("%d %d %d\n", params[IND_ALGO], params[IND_NUMPROCESS], params[IND_TIMESLICE]);
-    for(i = 0; i < 3; i++) printf("%d %d %d \n", processes[i].pID, processes[i].arrivalTime, processes[i].burstTime);
+    // printf("%d %d %d\n", params[IND_ALGO], params[IND_NUMPROCESS], params[IND_TIMESLICE]);
+    // for(i = 0; i < 3; i++) printf("%d %d %d \n", processes[i].pID, processes[i].arrivalTime, processes[i].burstTime);
 
     // printf("%d", processes[2].burstTime);
 
     // algorithm portion
     if(params[IND_ALGO] == 0){
         // First come first serve
-        puts("First Come First Serve: \n");
+        puts("First Come First Serve:");
         fcfs(processes, params[IND_NUMPROCESS]);
     } else if (params[IND_ALGO] == 1){
         // Shortest Job First
-        puts("Shortest Job First: \n");
+        puts("Shortest Job First:");
         sjf(processes, params[IND_NUMPROCESS]);
     } else if (params[IND_ALGO] == 2){
         // Shortest Remaining Time First
-        puts("Shortest Remaining Time First: \n");
+        puts("Shortest Remaining Time First:");
         srtf(processes, params[IND_NUMPROCESS]);
     } else if (params[IND_ALGO] == 3){
         // Round Robin
-        puts("Round Robin: \n");
+        puts("Round Robin:");
         roundRobin(processes, params[IND_TIMESLICE], params[IND_NUMPROCESS]);
     }
     return 0;
 }
 
-// bubble sort algo was taken from: https://www.edureka.co/blog/sorting-algorithms-in-c/#BubbleSort
 void swap(int *a, int *b) 
 { 
 int temp = *a; 
@@ -194,12 +193,13 @@ fcfs(struct process processes[], int n)
 	}
 	
 	outputFormat(processes, n);
+    outputAvgWaitTime(processes, n);
+
+	// for(i = 0; i < n; i++)
+	// 	totalWT += processes[i].waitTime;
+	// avgTime = totalWT * 1.0 / n ;
 	
-	for(i = 0; i < n; i++)
-		totalWT += processes[i].waitTime;
-	avgTime = totalWT * 1.0 / n ;
-	
-	printf("Average Waiting Time: <%.2f>", avgTime);
+	// printf("Average Waiting Time: <%.2f>", avgTime);
 	
 }
 
@@ -296,13 +296,13 @@ sjf(struct process processes[], int n)
   	  }
   	
 	outputFormat(processes, n);
+    outputAvgWaitTime(processes, n);
+	// for(i = 0; i < n; i++)
+	// 	totalWT += processes[i].waitTime;
+	// avgTime = totalWT * 1.0 / n ;
 	
-	for(i = 0; i < n; i++)
-		totalWT += processes[i].waitTime;
-	avgTime = totalWT * 1.0 / n ;
-	
-	printf("Average Waiting Time: <%.2f>", avgTime);
-	
+	// printf("Average Waiting Time: <%.2f>", avgTime);
+
 }
 
 srtf(struct process processes[], int n){
@@ -366,11 +366,12 @@ srtf(struct process processes[], int n){
         }
         // outputFormat(processes, n);
     }
-    for(i = 0; i < n; i++) wtAccu += processes[i].waitTime;
-    wtAvg = wtAccu * 1.0 / n ;
+    // for(i = 0; i < n; i++) wtAccu += processes[i].waitTime;
+    // wtAvg = wtAccu * 1.0 / n ;
 
     outputFormat(processes, n);
-    printf("Average Waiting Time: <%.2f>", wtAvg);
+    outputAvgWaitTime(processes, n);
+    // printf("Average Waiting Time: <%.2f>", wtAvg);
 }
 roundRobin(struct process processes[], int timeSlice, int n){
     // Apply time slice to all tasks in order of arrival time
@@ -433,11 +434,12 @@ roundRobin(struct process processes[], int timeSlice, int n){
         if(flag) break;
     }
 
-    for(i = 0; i < n; i++) wtAccu += processes[i].waitTime;
-    wtAvg = wtAccu * 1.0 / n ;
+    // for(i = 0; i < n; i++) wtAccu += processes[i].waitTime;
+    // wtAvg = wtAccu * 1.0 / n ;
 
     outputFormat(processes, n);
-    printf("Average Waiting Time: <%.2f>", wtAvg);
+    outputAvgWaitTime(processes, n);
+    // printf("Average Waiting Time: <%.2f>", wtAvg);
 }
 
 outputFormat(struct process processes[], int n){
@@ -450,4 +452,13 @@ outputFormat(struct process processes[], int n){
         }
         printf("Waiting Time: <%d>\n", processes[i].waitTime);
     }
+}
+
+outputAvgWaitTime(struct process processes[], int n){
+    int wtAccu = 0;
+    double wtAvg = 0;
+    int i = 0;
+    for(i = 0; i < n; i++) wtAccu += processes[i].waitTime;
+    wtAvg = wtAccu * 1.0 / n ;
+    printf("Average Waiting Time: <%.2f>", wtAvg);
 }
