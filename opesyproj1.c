@@ -217,7 +217,7 @@ for (j = 0; j < n-i-1; j++) if (array[j] > array[j+1])
 }
 
 sjf(struct process processes[], int n)
-{	
+{		
 	int timeWaiting = 0;
 	int totalWT= 0;
 	double avgTime = 0;
@@ -247,12 +247,12 @@ sjf(struct process processes[], int n)
 	bubbleSort2(burstTime, n, sortedIndex, arrTime);
 	//sort the arrival times along with the indexes
 	bubbleSort2(arrTime, n, sortedIndex, burstTime);
-	/*
+	
 	for(i = 0; i < n; i++)
 	{
 		printf("index: %d ||Burst %d||Arrival %d\n", sortedIndex[i], burstTime[i], arrTime[i]);
 	}
-	*/
+	
 	for(i = 0; i < n; i++)
  	   {
         //setting the values for the first case
@@ -264,6 +264,7 @@ sjf(struct process processes[], int n)
                 processes[sortedIndex[i]].cycle = 0;
                 flag[sortedIndex[i]] = 1;
                 prevIndex = sortedIndex[i];
+                counter += processes[sortedIndex[i]].burstTime;
             }
         //setting values for the rest of the cases
       	  else
@@ -271,7 +272,7 @@ sjf(struct process processes[], int n)
             for(j = 0; j < n; j++)
             {
             	//we check if the arrival time of the current process is smaller than the previous and check the flag(if it has already been used)
-            	if((processes[sortedIndex[j]].arrivalTime <=  (processes[sortedIndex[i-1]].burstTime + processes[sortedIndex[i-1]].arrivalTime)) 
+            	if((processes[sortedIndex[j]].arrivalTime <=  (counter)) 
 				&& (flag[sortedIndex[j]] != 1))
 				{
 					//get the smallest burst time and the index
@@ -291,6 +292,7 @@ sjf(struct process processes[], int n)
             flag[sortedIndex[indexSmallest]] = 1;
             smallest = 999999;
             prevIndex = sortedIndex[indexSmallest];
+            counter += processes[sortedIndex[indexSmallest]].burstTime;
        	 }
        	 
   	  }
